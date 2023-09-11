@@ -1,6 +1,8 @@
 <?php
 
 use App\Models\User;
+use App\Models\CartItem;
+use App\Models\Pembayaran;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
@@ -10,6 +12,8 @@ use App\Http\Controllers\UploadGambarController;
 use App\Http\Controllers\Produk\ControllerBarang;
 use App\Http\Controllers\Auth\CodeCheckController;
 use App\Http\Controllers\AuthenticationController;
+use App\Http\Controllers\Produk\CheckoutController;
+use App\Http\Controllers\Produk\PembayaranController;
 use App\Http\Controllers\Auth\ForgotPaswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 
@@ -32,30 +36,64 @@ use App\Http\Controllers\Auth\ResetPasswordController;
 Route::get('/barang', [ControllerBarang::class, 'index']); //->middleware(['auth:sanctum']);
 Route::get('/barang/{id}', [ControllerBarang::class, 'show']); //->middleware(['auth:sanctum']);;
 Route::post('/barang', [ControllerBarang::class, 'store']);
-Route::put('/update/{id}', [ControllerBarang::class, 'update']);
+Route::get('/kategori', [ControllerBarang::class, 'kategori']);
+Route::get('/jumlah', [ControllerBarang::class, 'hitungJumlahBarang']);
+Route::post('/update/{id}', [ControllerBarang::class, 'update']);
+Route::delete('/delete/{id}', [ControllerBarang::class, 'destroy']);
+
+
 
 Route::post('/login', [RegisterController::class, 'login']);
 Route::post('/register', [RegisterController::class, 'register']);
 Route::get('/logout', [RegisterController::class, 'logout'])->middleware(['auth:sanctum']);
 
 
+
 Route::post('password/email',  ForgotPaswordController::class);
 Route::post('password/code/check', CodeCheckController::class);
 Route::post('password/reset', ResetPasswordController::class);
 
+
+
 Route::get('/user/{id}', [UserController::class, 'show']);
 Route::delete('/user/{id}', [UserController::class, 'delete']);
+
+
+
+Route::post('/update/prof/{id}', [RegisterController::class, 'update']);
+Route::get('/show/prof/{id}', [RegisterController::class, 'show']);
+
+
 
 Route::post('image', [UploadGambarController::class, 'imageStore']);
 Route::post('image/{id}', [UploadGambarController::class, 'imageupdate']);
 Route::get('/image/tampil/{id}', [UploadGambarController::class, 'show']);
+Route::delete('/delete/image/{id}', [UploadGambarController::class, 'destroy']);
 
-Route::get('carts', [CartController::class, 'index'])->middleware(['auth:sanctum']);
 
-Route::middleware('auth:sanctum')->group(function () {
+
+Route::get('carts/{cart_id}', [CartController::class, 'show'])->middleware(['auth:sanctum']);
+//Route::post('carts/up', [CartController::class, 'addCart'])->middleware(['auth:sanctum']);
+Route::delete('carts/del/{cart_id}', [CartController::class, 'removeFromCart'])->middleware(['auth:sanctum']);
+Route::post('keranjang', [CartController::class, 'keranjang']);
+
+
+
+Route::post('bayar', [PembayaranController::class, 'inputbayar']);
+Route::post('checkout/input', [CheckoutController::class, 'inputcheckout2'])->middleware(['auth:sanctum']);
+Route::post('konfirm/{id}', [PembayaranController::class, 'konfirmasi'])->middleware(['auth:sanctum']);
+Route::get('show', [PembayaranController::class, 'showorder'])->middleware(['auth:sanctum']);
+Route::get('pesanan', [PembayaranController::class, 'jumlahpesanan']);
+Route::get('pembayaran', [PembayaranController::class, 'jumlahpembayaran']);
+
+
+
+/*Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('carts')->group(function () {
         Route::post('/', [CartController::class, 'store']);
         Route::post('/{product_id}', [CartController::class, 'create']);
     });
-});
+});*/
+
+//Route::apiResource('carts', 'CartController')->except(['update', 'index']);

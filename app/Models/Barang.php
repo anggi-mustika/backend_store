@@ -10,5 +10,5 @@ class Barang extends Model
     use HasFactory;
 
     protected $table = 'barang';
-    protected $fillable = ['kd_brg', 'hrg_brg', 'stok', 'nm_brg', 'ket_brg', 'berat_brg', 'jenis_brg'];
+    protected $fillable = ['kd_brg', 'hrg_brg', 'stok', 'nm_brg', 'tag', 'type_size', 'ket_brg', 'berat_brg', 'jenis_brg', 'image'];
 }

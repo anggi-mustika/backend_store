@@ -6,54 +6,99 @@ use Produk;
 use App\Order;
 
 use App\Product;
-use App\CartItem;
 use App\Models\Cart;
+use App\Models\Barang;
+use App\Models\NewCart;
+use App\Models\CartItem;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Resources\CartItemResource;
 use Illuminate\Support\Facades\Validator;
-use App\Http\Resources\ItemCartCollection;
+use Illuminate\Console\View\Components\Task;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Resources\CartItemCollection as CartItemCollection;
+use App\Http\Resources\ItemCartCollection as ItemCartCollection;
 
 class CartController extends Controller
 {
 
-    /**
-     * Store a newly created Cart in storage and return the data to the user.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
+
+    public function show(Request $request, NewCart $cart, $id)
     {
+        $cart = NewCart::with('barang')->where('id', $id)->first();
+
+        //return CartItemResource::collection($cart);
+        //$cart = NewCart::findOrfail($id);
+        return response()->json($cart);
+        //return response()->json(['total_harga' => $totalHarga]);
+    }
+
+
+
+    public function keranjang(Request $request)
+    {
+        $productId = $request->input('barang_id');
+        $quantity = $request->input('quantity');
+
+        $product = Barang::find($productId);
+        if (!$product) {
+            return response()->json(['message' => 'Produk tidak ditemukan.'], 404);
+        }
+
+        $subtotal = $product->hrg_brg * $quantity;
+
+        $cartItem = new NewCart();
+        $cartItem->barang_id = $productId;
+        $cartItem->quantity = $quantity;
+        $cartItem->sub_total = $subtotal;
+        $cartItem->save();
+
+        return response()->json(['message' => 'Produk berhasil ditambahkan ke keranjang!!'], 201);
+    }
+
+
+    public function removeFromCart($id)
+    {
+        $cartItem = NewCart::find($id);
+
+        if (!$cartItem) {
+            return response()->json(['message' => 'Item tidak ditemukan dalam keranjang.'], 404);
+        }
+
+        $cartItem->delete();
+
+        return response()->json(['message' => '1 Item berhasil dihapus dari keranjang.'], 200);
+    }
+}
+
+
+
+
+
+/**
+ * checkout the cart Items and create and order.
+ *
+ * @param  \Illuminate\Http\Request  $request
+ * @param  \App\Cart  $cart
+ * @return void
+ */
+/**public function checkout(Cart $cart, Request $request)
+    {
+
         if (Auth::guard('api')->check()) {
             $userID = auth('api')->user()->getKey();
         }
 
-        $cart = Cart::create([
-            'id' => md5(uniqid(rand(), true)),
-            'key' => md5(uniqid(rand(), true)),
-            'userID' => isset($userID) ? $userID : null,
-
-        ]);
-        return response()->json([
-            'Message' => 'A new cart have been created for you!',
-            'cartToken' => $cart->id,
-            'cartKey' => $cart->key,
-        ], 201);
-    }
-
-    /**
-     * Display the specified Cart.
-     *
-     * @param  \App\Cart  $cart
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Cart $cart, Request $request)
-    {
         $validator = Validator::make($request->all(), [
             'cartKey' => 'required',
+            'name' => 'required',
+            'adress' => 'required',
+            'credit card number' => 'required',
+            'expiration_year' => 'required',
+            'expiration_month' => 'required',
+            'cvc' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -64,15 +109,59 @@ class CartController extends Controller
 
         $cartKey = $request->input('cartKey');
         if ($cart->key == $cartKey) {
-            return response()->json([
-                'cart' => $cart->id,
-                'Items in Cart' => new ItemCartCollection($cart->items),
-            ], 200);
-        } else {
+            $name = $request->input('name');
+            $adress = $request->input('adress');
+            $creditCardNumber = $request->input('credit card number');
+            $TotalPrice = (float) 0.0;
+            $items = $cart->items;
 
+            foreach ($items as $item) {
+
+                $product = Product::find($item->product_id);
+                $price = $product->price;
+                $inStock = $product->UnitsInStock;
+                if ($inStock >= $item->quantity) {
+
+                    $TotalPrice = $TotalPrice + ($price * $item->quantity);
+
+                    $product->UnitsInStock = $product->UnitsInStock - $item->quantity;
+                    $product->save();
+                } else {
+                    return response()->json([
+                        'message' => 'The quantity you\'re ordering of ' . $item->Name .
+                            ' isn\'t available in stock, only ' . $inStock . ' units are in Stock, please update your cart to proceed',
+                    ], 400);
+                }
+            }**/
+
+/**
+ * Credit Card information should be sent to a payment gateway for processing and validation,
+ * the response should be dealt with here, but since this is a dummy project we'll
+ * just assume that the information is sent and the payment process was done succefully,
+ */
+
+/**$PaymentGatewayResponse = true;
+            $transactionID = md5(uniqid(rand(), true));
+
+            if ($PaymentGatewayResponse) {
+                $order = Order::create([
+                    'products' => json_encode(new CartItemCollection($items)),
+                    'totalPrice' => $TotalPrice,
+                    'name' => $name,
+                    'address' => $adress,
+                    'userID' => isset($userID) ? $userID : null,
+                    'transactionID' => $transactionID,
+                ]);
+
+                $cart->delete();
+
+                return response()->json([
+                    'message' => 'you\'re order has been completed succefully, thanks for shopping with us!',
+                    'orderID' => $order->getKey(),
+                ], 200);
+            }
+        } else {
             return response()->json([
                 'message' => 'The CarKey you provided does not match the Cart Key for this Cart.',
             ], 400);
-        }
-    }
-}
+        }**/

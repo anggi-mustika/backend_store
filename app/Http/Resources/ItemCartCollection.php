@@ -8,21 +8,17 @@ use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class ItemCartCollection extends ResourceCollection
 {
+
+    public $collects = 'App\Http\Resources\CartItemResource';
+
     /**
      * Transform the resource collection into an array.
      *
-     * @return array<int|string, mixed>
+     * @param  \Illuminate\Http\Request  $request
+     * @return array
      */
-    public function toArray(Request $request): array
+    public function toArray($request)
     {
-        $barang = Barang::find($this->product_id);
-
-        return [
-            'productID' => $this->product_id,
-            'SKU' => $barang->sku,
-            'price' => $barang->price,
-            'Name' => $barang->Name,
-            'Quantity' => $this->quantity,
-        ];
+        return $this->collection;
     }
 }

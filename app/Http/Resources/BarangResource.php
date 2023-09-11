@@ -21,6 +21,7 @@ class BarangResource extends JsonResource
             "stok" => $this->stok,
             "nm_brg" => $this->nm_brg,
             "ket_brg" => $this->ket_brg,
+            "image" => $this->image,
             "berat_brg" => $this->berat_brg,
             "jenis_brg" => $this->jenis_brg
         ];

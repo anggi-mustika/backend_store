@@ -12,12 +12,9 @@ use App\Models\CodePasswordReset;
 
 class ForgotPaswordController extends Controller
 {
-    /**
-     * Send random code to email of user to reset password (Setp 1)
-     *
-     * @param  mixed $request
-     * @return void
-     */
+
+    //Mengirim Kode untuk reset password (bag 1)
+
     public function __invoke(ForgotPasswordRequest $request)
     {
         CodePasswordReset::where('email', $request->email)->delete();

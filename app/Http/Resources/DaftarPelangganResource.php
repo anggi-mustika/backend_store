@@ -18,6 +18,7 @@ class DaftarPelangganResource extends JsonResource
             "id" => $this->id,
             "email" => $this->email,
             "name" => $this->name,
+            "updated_at" => $this->created_at,
         ];
     }
 }

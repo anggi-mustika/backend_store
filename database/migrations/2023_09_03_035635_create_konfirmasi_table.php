@@ -13,14 +13,10 @@ return new class extends Migration
     {
         Schema::create('konfirmasi', function (Blueprint $table) {
             $table->id();
-            $table->date('tgl_konf');
-            $table->string('bank', 30);
-            $table->string('nm_pemilik', 30);
-            $table->text('ket', 100);
-            $table->unsignedBigInteger('pesanan_id');
+            $table->unsignedBigInteger('bayar_id');
+            $table->string('konfirm');
 
-            $table->foreign('pesanan_id')->references('id')->on('pesanan')->onDelete('cascade')->onUpdate('cascade');
-            $table->softDeletes();
+            $table->foreign('bayar_id')->references('id')->on('pembayaran')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });
     }

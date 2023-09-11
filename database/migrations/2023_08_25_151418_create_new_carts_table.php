@@ -11,11 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('kota', function (Blueprint $table) {
+        Schema::create('new_carts', function (Blueprint $table) {
             $table->id();
-            $table->string('nm_kota');
+            $table->unsignedBigInteger('barang_id');
+            $table->Integer('quantity');
+            $table->Integer('total_harga');
+            $table->foreign('barang_id')->references('id')->on('barang')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 
@@ -24,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('kota');
+        Schema::dropIfExists('new_carts');
     }
 };

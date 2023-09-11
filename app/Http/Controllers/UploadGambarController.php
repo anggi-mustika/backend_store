@@ -92,4 +92,19 @@ class UploadGambarController extends Controller
         //return response
         //return new PostResource(true, 'Data Post Berhasil Diubah!', $post);
     }
+
+    public function destroy($id)
+    {
+        // Cari data berdasarkan ID
+        $data = GambarUpload::find($id);
+
+        if (!$data) {
+            return response()->json(['message' => 'Data not found'], 404);
+        }
+
+        // Lakukan penghapusan
+        $data->delete();
+
+        return response()->json(['message' => 'Gambar berhasil dihapus'], 200);
+    }
 }

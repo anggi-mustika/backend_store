@@ -14,7 +14,7 @@ class RegisterController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required',
-            'nm_akhir_user' => 'required',
+            'nama_akhir' => 'required',
             'email' => 'required|email',
             'password' => 'required',
             'tgl_lhr' => 'required',
@@ -64,6 +64,45 @@ class RegisterController extends Controller
             ]);
         }
     }
+
+    public function update(Request $request, $id)
+    {
+
+        $validated = $request->validate([
+            'name' => 'required',
+            'nama_akhir' => 'required',
+            'email' => 'required|email',
+            'password' => 'required',
+            'tgl_lhr' => 'required',
+            'gender' => 'required',
+            'confirm_password' => 'required|same:password',
+        ]);
+
+
+        //$this->authorize('update', $barang);
+        $post = User::find($id);
+
+
+        //update post with new image
+        $post->update([
+            'name'     => $request->name,
+            'nama_akhir'     => $request->nama_akhir,
+            'email'     => $request->email,
+            'password'     => $request->password,
+            'tgl_lhr'     => $request->tgl_lhr,
+            'gender'     => $request->gender,
+            'confirm_password'     => $request->confirm_password,
+        ]);
+
+
+        //return response
+        //return response($image, Response::HTTP_CREATED);
+
+        return [
+            'message' => 'Berhasil update profil'
+        ];
+    }
+
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
